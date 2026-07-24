@@ -6,18 +6,40 @@
 // This supersedes artifacts/ajan6-ClawScoreV1.md, which invented a
 // different formula (SuccessRate/StakeScore/TenureScore) without
 // consulting this document.
+//
+// CEO decision (2026-07-24, MVP strategy): the WillDividendTracker
+// (0xe117...) dependency for C/F is cut OFF-CHAIN, not by adding native
+// claim/faction tracking to the contract — WillTokenV6 (which would
+// have added that on-chain) is CANCELLED; WillTokenV5 stays on Mainnet,
+// untouched. See artifacts/phase3-roadmap.md for what's deferred.
 
 export interface ClawScoreInput {
   /** WILL balance, 18 decimals, as a bigint. */
   balance: bigint
   /** Days the current position has been held. */
   holdDays: number
-  /** Number of dividend claims made. */
+  /**
+   * V5-native "protocol activity" count — source this from
+   * `WillTokenV5.nonces(holder)` (every `executeIntent` call where this
+   * address was `from` increments it; see
+   * `ajan4-testnet-read.ts#getActivityCount`). Previously sourced from
+   * WillDividendTracker's `withdrawDividend` events — that dependency
+   * is cut per the 2026-07-24 CEO decision above. §7's "C = Claim Score
+   * (protokol aktivitesi)" wording already means general protocol
+   * activity, not literally dividend withdrawals, so this is a faithful
+   * reinterpretation of the existing formula, not a change to it.
+   */
   claimCount: number
-  /** Number of faction (cat) switches, lifetime. */
-  factionSwitchCount: number
-  /** Days spent in the current faction. */
-  factionDays: number
+  /**
+   * Faction (cat) switches/tenure. WillTokenV5 has NO native faction
+   * state — that would have required the now-cancelled WillTokenV6.
+   * No data source is wired for MVP: omit both faction fields and
+   * factionScore computes as 0 (see calcClawScore below). Phase 3
+   * roadmap item — see artifacts/phase3-roadmap.md.
+   */
+  factionSwitchCount?: number
+  /** Days spent in the current faction — see factionSwitchCount above. */
+  factionDays?: number
   /**
    * DePIN/ClawHub agent participation score, already normalized 0-1.
    * SCARCAT_ECON_MODEL.md §7 leaves this component undecided for v1
@@ -98,7 +120,16 @@ export function calcClawScore(input: ClawScoreInput): ClawScoreBreakdown {
   const holderScore = calcHolderScore(input.balance)
   const timeScore = calcTimeScore(input.holdDays)
   const claimScore = calcClaimScore(input.claimCount)
-  const factionScore = calcFactionScore(input.factionSwitchCount, input.factionDays)
+  // MVP (2026-07-24 CEO decision): no faction data source is wired —
+  // factionDays omitted means "unknown," which computes as 0 rather
+  // than fabricating tenure. Not the same as switchCount=0/factionDays=0
+  // being passed explicitly (that would also yield 0 here, so the
+  // outcome is identical either way — this branch just makes the "no
+  // data" case explicit rather than relying on callers passing zeros).
+  const factionScore =
+    input.factionDays === undefined
+      ? 0
+      : calcFactionScore(input.factionSwitchCount ?? 0, input.factionDays)
   // Red Team finding (2026-07-24): every other component clamps its
   // input to [0,1] internally; agentScore was trusted at face value
   // ("already normalized") with no defensive clamp, so a bad upstream
