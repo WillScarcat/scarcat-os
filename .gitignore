@@ -1,0 +1,20 @@
+# Secrets — never committed under any name
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*private*key*
+
+# Foundry build artifacts / local chain state
+out/
+cache/
+broadcast/
+lib/
+
+# Node
+node_modules/
+*.tsbuildinfo
+
+# OS
+.DS_Store
