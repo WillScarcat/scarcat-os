@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {Test} from "forge-std/Test.sol";
-import {WillTokenV5} from "./ajan1-WillTokenV5.sol";
+import {HoodSeekV1} from "./ajan1-HoodSeekV1.sol";
 
 // Minimal ERC20-like mock for burnLP tests — not part of the deploy set.
 contract MockLPToken {
@@ -25,8 +25,8 @@ contract MockLPToken {
 // response to the Red Team finding (2026-07-24) that no test exercised
 // the executeIntent happy path, the pause/unpause round-reuse fix, LP
 // burn, or signature malleability rejection.
-contract WillTokenV5Test is Test {
-    WillTokenV5 token;
+contract HoodSeekV1Test is Test {
+    HoodSeekV1 token;
     MockLPToken lpToken;
 
     address guardian1 = address(0x1);
@@ -51,7 +51,7 @@ contract WillTokenV5Test is Test {
         // Deploy as `sender` so the initial supply lands on an address we
         // hold a real private key for (needed to sign EIP-712 intents).
         vm.prank(sender);
-        token = new WillTokenV5(1_000_000 ether, treasury, guardians, 2);
+        token = new HoodSeekV1(1_000_000 ether, treasury, guardians, 2);
 
         lpToken = new MockLPToken();
 

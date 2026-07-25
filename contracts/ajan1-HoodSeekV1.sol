@@ -1,6 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+// RENAMED 2026-07-25 — Option B total rebrand (DISPATCH.md Phase 11):
+// ajan1-WillTokenV5.sol -> ajan1-HoodSeekV1.sol, contract WillTokenV5 ->
+// HoodSeekV1, EIP-712 domain name string updated to match. No holders
+// existed under the old identity (test wallets only), so this is a
+// same-code rename ahead of a fresh deploy, not a migration. Logic below
+// is otherwise unchanged from WillTokenV5 — history preserved as-is.
+//
 // DRAFT v5 — unaudited. Fixes vs ajan1-WillTokenV4.sol (Red Team review
 // 2026-07-24): removes the dead `owner` state — it was set in the
 // constructor and had a transferOwnership() function + event, but no
@@ -15,7 +22,14 @@ interface ILPToken {
     function transfer(address to, uint256 amount) external returns (bool);
 }
 
-contract WillTokenV5 {
+contract HoodSeekV1 {
+    // Informational only — NOT an ERC20 name()/symbol() pair. This
+    // contract has no decimals(), no Transfer event, no approve/transfer;
+    // adding those two functions doesn't make it ERC20-shaped, it just
+    // gives HOSE_TOKEN_V1_ABI-style consumers a way to display identity.
+    string public constant NAME = "HoodSeek";
+    string public constant SYMBOL = "HOSE";
+
     address public constant BURN_ADDRESS = 0x000000000000000000000000000000000000dEaD;
     uint256 public constant TIMELOCK_DELAY = 2 days;
     uint256 public constant MIN_GUARDIANS = 3;
@@ -110,7 +124,7 @@ contract WillTokenV5 {
         DOMAIN_SEPARATOR = keccak256(
             abi.encode(
                 keccak256("EIP712Domain(string name,uint256 chainId,address verifyingContract)"),
-                keccak256("WillTokenV5"),
+                keccak256("HoodSeekV1"),
                 block.chainid,
                 address(this)
             )
