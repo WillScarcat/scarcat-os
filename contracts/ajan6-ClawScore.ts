@@ -25,7 +25,7 @@ export interface ClawScoreInput {
    * `ajan4-testnet-read.ts#getActivityCount`). Previously sourced from
    * WillDividendTracker's `withdrawDividend` events — that dependency
    * is cut per the 2026-07-24 CEO decision above. §7's "C = Claim Score
-   * (protokol aktivitesi)" wording already means general protocol
+   * (protocol activity)" wording already means general protocol
    * activity, not literally dividend withdrawals, so this is a faithful
    * reinterpretation of the existing formula, not a change to it.
    */
@@ -43,8 +43,8 @@ export interface ClawScoreInput {
   /**
    * DePIN/ClawHub agent participation score, already normalized 0-1.
    * SCARCAT_ECON_MODEL.md §7 leaves this component undecided for v1
-   * ("Karar 3: Agent Score (ε) — v3 için mi beklesin?" — still open,
-   * "Agent Score (A bileşeni) → DePIN node uptime API" still a TODO).
+   * ("Decision 3: should Agent Score (ε) wait for v3?" — still open,
+   * "Agent Score (component A) → DePIN node uptime API" still a TODO).
    * Defaults to 0 until that API exists — do not fabricate a formula
    * for it here.
    */

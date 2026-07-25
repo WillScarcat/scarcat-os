@@ -1,81 +1,83 @@
-# OpenClaw Arsenal Eşleştirmesi — 9 Ajan × 6 Araç
+# OpenClaw Arsenal Mapping — 9 Agents × 6 Tools
 
-## ⚠️ DÜRÜSTLÜK UYARISI — okumadan önce
+## ⚠️ HONESTY WARNING — read before proceeding
 
-Bu doküman **spekülatif**. Aranıp doğrulandı (2026-07-24): `Crabfleet`,
-`Lobster`, `discrawl`, `gitcrawl`, `telecrawl`, `ClickClack` isimlerinin
-hiçbiri bu ortamda — ne gerçek bir repo/kod olarak, ne de
-Manifesto/ECON_MODEL/QUANT_REPORT gibi mevcut proje belgelerinde bir
-açıklama olarak — bulunamadı. CEO direktifinde sadece çıplak isimler
-geçiyor, ne yaptıklarına dair tek satır bile yok (OpenClaw'ın `imsg`/
-`acpx` gibi bileşenleri en azından Manifesto v3'te birer cümlelik
-tanıma sahipti — bunlar onu bile yok).
+This document is **speculative**. Searched and confirmed (2026-07-24):
+none of the names `Crabfleet`, `Lobster`, `discrawl`, `gitcrawl`,
+`telecrawl`, `ClickClack` were found in this environment — neither as
+real repos/code, nor as a description in any existing project document
+(Manifesto/ECON_MODEL/QUANT_REPORT). The CEO directive only mentions
+bare names, without a single line describing what they do (OpenClaw's
+components like `imsg`/`acpx` at least had a one-sentence definition in
+Manifesto v3 — these don't even have that).
 
-Aşağıdaki eşleştirme **sadece isim semantiğinden ve her ajanın zaten
-bilinen rolünden** çıkarım yapıyor. Bu bir mimari karar dokümanı değil,
-"eğer isimler ima ettiği gibiyse, muhtemelen böyle olur" seviyesinde bir
-başlangıç noktası. **Herhangi bir gerçek entegrasyon çalışmasına
-başlamadan önce CEO/Baş Stratejist'ten bu 6 aracın gerçek ne olduğuna
-dair bir açıklama istenmeli.**
+The mapping below infers **purely from name semantics and each agent's
+already-known role**. This is not an architectural decision document —
+it's a starting point at the level of "if the names imply what they
+seem to, it would probably work like this." **Before starting any real
+integration work, the CEO/Chief Strategist should be asked for an
+actual description of what these 6 tools are.**
 
 ---
 
-## Çıkarım güven seviyeleri
+## Inference confidence levels
 
-| Araç | Çıkarım | Güven |
+| Tool | Inference | Confidence |
 |---|---|---|
-| `gitcrawl` | Git/GitHub repo aktivite tarayıcısı (commit, PR, issue) | Yüksek — isim çok açık |
-| `discrawl` | Discord aktivite tarayıcısı (sunucu/kanal/mesaj) | Yüksek — isim çok açık |
-| `telecrawl` | Telegram aktivite tarayıcısı (kanal/grup mesajları) | Yüksek — isim çok açık |
-| `Crabfleet` | Tarayıcı/worker "filosu"nu yöneten altyapı katmanı (gitcrawl/discrawl/telecrawl'ı çalıştıran orkestrasyon) — Manifesto v3'teki `gogcli`ye kavramsal olarak benzer | Orta — "fleet" kelimesinden çıkarım, doğrulanmadı |
-| `Lobster` | Whale/wash-trading veri analiz aracı (SCARCAT_QUANT_REPORT.md'deki vol/liq analizi ile aynı aile) | Düşük — sadece tema (crustacean) uyumu, işlevsel bir ipucu yok |
-| `ClickClack` | **Çıkarım yapılamadı** | Yok — isim hiçbir anlamsal ipucu vermiyor |
+| `gitcrawl` | Git/GitHub repo activity crawler (commits, PRs, issues) | High — name is very explicit |
+| `discrawl` | Discord activity crawler (server/channel/messages) | High — name is very explicit |
+| `telecrawl` | Telegram activity crawler (channel/group messages) | High — name is very explicit |
+| `Crabfleet` | Infrastructure layer running the crawler/worker "fleet" (orchestrates gitcrawl/discrawl/telecrawl) — conceptually similar to Manifesto v3's `gogcli` | Medium — inferred from the word "fleet," unverified |
+| `Lobster` | Whale/wash-trading data analysis tool (same family as the vol/liq analysis in SCARCAT_QUANT_REPORT.md) | Low — only thematic (crustacean) fit, no functional clue |
+| `ClickClack` | **No inference possible** | None — the name gives no semantic clue at all |
 
 ---
 
-## Eşleştirme (9 ajan × çıkarımsal araç kullanımı)
+## Mapping (9 agents × inferred tool usage)
 
-| Ajan | Rol | Muhtemel araç(lar) | Gerekçe |
+| Agent | Role | Likely tool(s) | Rationale |
 |---|---|---|---|
-| Ajan-1 | Smart Contract & MEV Lead | `Lobster` (?) | MEV/wash-trading tespiti Ajan-1'in kapsamına giriyor (clawsweeper ile birlikte) — ama Lobster'ın gerçekte bunu yapıp yapmadığı doğrulanmadı |
-| Ajan-2 | Interface & ClawHub | — | İsimlerden hiçbiri arayüz/frontend ile açık bir bağ kurmuyor |
-| Ajan-3 | Stealth Motion Designer | — | Aynı şekilde bağ yok |
-| Ajan-4 | Node & Infrastructure | `Crabfleet` | "Fleet" = worker/node orkestrasyonu, Ajan-4'ün rolüyle en dogal eşleşme |
-| Ajan-5 | ClawHub AI Model Engineer | `gitcrawl`, `Lobster` (?) | Model geliştirme için repo aktivitesi (gitcrawl) + quant veri (Lobster) mantıklı ama doğrulanmadı |
-| Ajan-6 | A2A Monetization Strategist | `Lobster` (?) | Whale/veri satışı (SCARCAT_ECON_MODEL.md §8.2 "A2A Veri Fiyatlaması") Lobster'ın çıktısına bağımlı olabilir |
-| Ajan-7 | Ecosystem & Partnerships VP | `telecrawl`, `discrawl` | Topluluk/partner izleme — Telegram kripto projelerinde birincil kanal olduğu için telecrawl öne çıkıyor |
-| Ajan-8 | Autonomous Swarm & Social-Fi | `discrawl`, `telecrawl` | Sosyal katman + copy-trading (bkz. openclaw-architecture.md §5) — topluluk sinyali için ikisi de mantıklı |
-| Ajan-9 | Swarm Commander | `Crabfleet`, `gitcrawl` | Orkestrasyon + swarm'ın kendi geliştirme aktivitesini izleme |
+| Agent-1 | Smart Contract & MEV Lead | `Lobster` (?) | MEV/wash-trading detection falls within Agent-1's scope (alongside clawsweeper) — but whether Lobster actually does this is unverified |
+| Agent-2 | Interface & ClawHub | — | None of the names make a clear connection to interface/frontend |
+| Agent-3 | Stealth Motion Designer | — | Same — no connection |
+| Agent-4 | Node & Infrastructure | `Crabfleet` | "Fleet" = worker/node orchestration, the most natural fit with Agent-4's role |
+| Agent-5 | ClawHub AI Model Engineer | `gitcrawl`, `Lobster` (?) | Repo activity (gitcrawl) + quant data (Lobster) makes sense for model development, but unverified |
+| Agent-6 | A2A Monetization Strategist | `Lobster` (?) | Whale/data sales (SCARCAT_ECON_MODEL.md §8.2 "A2A Data Pricing") could depend on Lobster's output |
+| Agent-7 | Ecosystem & Partnerships VP | `telecrawl`, `discrawl` | Community/partner monitoring — telecrawl stands out since Telegram is the primary channel for crypto projects |
+| Agent-8 | Autonomous Swarm & Social-Fi | `discrawl`, `telecrawl` | Social layer + copy-trading (see openclaw-architecture.md §5) — both make sense for community signal |
+| Agent-9 | Swarm Commander | `Crabfleet`, `gitcrawl` | Orchestration + monitoring the swarm's own development activity |
 
-`ClickClack`: hiçbir ajana atanmadı — isimden hiçbir işlevsel çıkarım
-yapılamadı. CEO netleştirmesi olmadan spekülasyon yapmak yanıltıcı
-olur.
+`ClickClack`: not assigned to any agent — no functional inference could
+be made from the name. Speculating without CEO clarification would be
+misleading.
 
 ---
 
-## OpenClaw mimarisiyle ilişki
+## Relationship to the OpenClaw architecture
 
-`openclaw-architecture.md`'deki katmanlarla karşılaştırıldığında:
+Compared against the layers in `openclaw-architecture.md`:
 
-- `gitcrawl`/`discrawl`/`telecrawl` → **veri girişi** katmanı, aynı rolü
-  Manifesto v3'ün `imsg`'i (agent-to-agent mesajlaşma) değil, daha çok
-  **crawler-bridge.ts**'in üstlendiği rolü oynuyor: dış dünyadan (git/
-  Discord/Telegram) sinyal toplayıp `OpenClawBridge`'e A2A talebi olarak
-  enjekte etmek. `artifacts/crawler-bridge.ts` bunun için genel bir
-  `CrawlerDataSource` arayüzü + test edilebilir bir mock implementasyonu
-  sağlıyor — gerçek gitcrawl/discrawl ortaya çıktığında sadece bu
-  arayüzü implemente etmek yeterli olmalı.
-- `Crabfleet` → muhtemelen bu crawler'ların ÇALIŞTIRILDIĞI altyapı;
-  `swarm-boot.ts`'in "9 ajana test cüzdanı + izleme" rolüyle kavramsal
-  olarak komşu ama aynı şey değil.
-- `Lobster` → eğer gerçekten quant/whale analiz aracıysa, ClawScore'un
-  gelecekte (Faz 3) eklenebilecek bir "Agent Score" veya risk-sinyali
-  bileşenine girdi olabilir — ama bu tamamen spekülasyon, bkz.
-  phase3-roadmap.md madde 4.
+- `gitcrawl`/`discrawl`/`telecrawl` → **data ingestion** layer — not
+  really playing the role of Manifesto v3's `imsg` (agent-to-agent
+  messaging), but more the role **crawler-bridge.ts** already plays:
+  collecting signals from the outside world (git/Discord/Telegram) and
+  injecting them into `OpenClawBridge` as an A2A request.
+  `artifacts/crawler-bridge.ts` provides a generic `CrawlerDataSource`
+  interface + a testable mock implementation for this — once a real
+  gitcrawl/discrawl exists, implementing this interface should be all
+  that's needed.
+- `Crabfleet` → likely the infrastructure that RUNS these crawlers;
+  conceptually adjacent to `swarm-boot.ts`'s "9 agents, test wallets +
+  monitoring" role, but not the same thing.
+- `Lobster` → if it really is a quant/whale analysis tool, it could
+  feed a future (Phase 3) "Agent Score" or risk-signal component of
+  ClawScore — but this is pure speculation, see phase3-roadmap.md item
+  4.
 
-## Sonraki adım
+## Next step
 
-Bu doküman **mimari karar için kullanılmamalı**. Önerilen adım: CEO/Baş
-Stratejist'ten her 6 araç için 1-2 cümlelik gerçek açıklama istensin
-(Manifesto v3'ün `imsg`/`acpx`/vb. için yaptığı gibi) — o zaman bu
-eşleştirme gerçek bir mimari karara dönüştürülebilir.
+This document **should not be used for architectural decisions**.
+Recommended step: ask the CEO/Chief Strategist for a 1-2 sentence real
+description of each of the 6 tools (the same way Manifesto v3 did for
+`imsg`/`acpx`/etc.) — only then can this mapping become a real
+architectural decision.

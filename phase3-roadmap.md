@@ -1,99 +1,100 @@
-# Faz 3 Roadmap — Post-MVP
+# Phase 3 Roadmap — Post-MVP
 
-CEO kararı (2026-07-24): "Bugünkü operasyon mühürlendi." Bu doküman,
-`artifacts/openclaw-architecture.md`'de tespit edilen 3 boşluktan MVP
-kapsamı dışında bırakılan maddeleri, gerekçeleriyle birlikte kaydeder.
-V5 Mainnet'te değişmeden kalıyor — burada listelenen hiçbir madde
-şu an aktif geliştirme altında değil.
+CEO decision (2026-07-24): "Today's operation is sealed." This document
+records the items left out of MVP scope from the 3 gaps identified in
+`artifacts/openclaw-architecture.md`, along with their rationale. V5
+remains unchanged on Mainnet — nothing listed here is under active
+development right now.
 
-## Karar özeti
+## Decision summary
 
-| # | Boşluk | MVP kararı |
+| # | Gap | MVP decision |
 |---|---|---|
-| 1 | AgentScope (ince yetkilendirme) | **Faz 3 — Post-MVP** |
-| 2 | Batch settlement (`executeIntentBatch`) | **Faz 3 — Post-MVP** |
-| 3 | ClawScore / WillDividendTracker (`0xe117...`) bağımlılığı | **Çözüldü — off-chain, MVP kapsamında** (bkz. openclaw-architecture.md §4) |
+| 1 | AgentScope (fine-grained authorization) | **Phase 3 — Post-MVP** |
+| 2 | Batch settlement (`executeIntentBatch`) | **Phase 3 — Post-MVP** |
+| 3 | ClawScore / WillDividendTracker (`0xe117...`) dependency | **Resolved — off-chain, within MVP scope** (see openclaw-architecture.md §4) |
 
 ---
 
-## Faz 3.1 — AgentScope (ince-taneli agent yetkilendirmesi)
+## Phase 3.1 — AgentScope (fine-grained agent authorization)
 
-**Problem:** `WillTokenV5.isAgent` ikili (bool) — kayıtlı herhangi bir
-ajan, herhangi bir imzalayanın imzaladığı `executeIntent` çağrısını
-sınırsız değerde çalıştırabilir. Bir ajan anahtarı ele geçirilirse,
-blast radius'u sınırlayan hiçbir kontrat-seviyeli mekanizma yok
-(mevcut savunma: guardian'ların `revokeAgent` ile onu çıkarması —
-2 günlük timelock'a tabi).
+**Problem:** `WillTokenV5.isAgent` is binary (bool) — any registered
+agent can execute an `executeIntent` call signed by any signer, for
+unlimited value. If an agent key is compromised, there is no
+contract-level mechanism limiting the blast radius (current defense:
+guardians removing it via `revokeAgent` — subject to a 2-day timelock).
 
-**Tasarım referansı:** `artifacts/ajan1-WillTokenV6.sol` (CANCELLED
-olarak işaretli, derlenmedi/test edilmedi) bir `AgentScope` struct'ı
-(günlük harcama limiti + fonksiyon-seçici kısıtlaması) önermişti.
-Faz 3'e geçildiğinde bu dosya başlangıç noktası olarak kullanılabilir
-ama **sıfırdan CTO güvenlik incelemesinden geçmeli** — iptal edildiği
-için hiç derlenip test edilmedi.
+**Design reference:** `artifacts/ajan1-WillTokenV6.sol` (marked
+CANCELLED, never compiled/tested) proposed an `AgentScope` struct (daily
+spending limit + function-selector restriction). When Phase 3 begins,
+this file can be used as a starting point, but **must go through a full
+CTO security review from scratch** — since it was cancelled, it was
+never compiled or tested.
 
-**Not:** AgentScope, agent-seviyeli bir throttle — acpx'in vaat ettiği
-(agent, principal) çiftine özel delegasyon modelini TAM olarak
-karşılamıyor (bkz. openclaw-architecture.md §2). Bu daha büyük, çözümü
-daha zor bir problem olarak ayrıca değerlendirilmeli.
+**Note:** AgentScope is an agent-level throttle — it does NOT fully
+satisfy the (agent, principal)-specific delegation model acpx implies
+(see openclaw-architecture.md §2). This should be evaluated separately
+as a larger, harder problem.
 
-**Ön koşullar:** V6 tasarımının yeniden gözden geçirilmesi, tam Red
-Team incelemesi (önceki 4 revizyon turunda WillTokenV1-V5'e uygulanan
-seviyede), Anvil'de kapsamlı test, ancak sonra mainnet'e dokunma kararı.
-
----
-
-## Faz 3.2 — Batch settlement (`executeIntentBatch`)
-
-**Problem:** Manifesto v3'ün öngördüğü "off-chain müzakere, periyodik
-toplu on-chain settlement" akışı, mevcut `executeIntent`'in tek-intent
-işlemesiyle gas-verimsiz oluyor (N intent = N ayrı tx).
-
-**Seçenekler (Faz 3'te karar verilecek):**
-- (a) Aynı ajan bir transaction'da birden fazla `executeIntent` çağırır
-  — basit, kontrat değişikliği gerektirmez, ama yine de N ayrı çağrı.
-- (b) Yeni `executeIntentBatch(AgentIntent[] calldata intents, bytes[] calldata signatures)`
-  fonksiyonu — gerçek gas tasarrufu, ama yeni saldırı yüzeyi: kısmi
-  başarısızlık davranışı (bir intent revert ederse tümü mü geri alınır
-  yoksa atlanır mı?), tek bir pahalı tx'te reentrancy/sıralama riskleri
-  yeniden değerlendirilmeli.
-
-**Ön koşullar:** (a) vs (b) kararı, (b) seçilirse tam CTO güvenlik
-incelemesi (kısmi başarısızlık semantiği özellikle).
+**Prerequisites:** revisiting the V6 design, a full Red Team review (at
+the level applied to WillTokenV1-V5 across the previous 4 revision
+rounds), extensive testing on Anvil, and only then a decision to touch
+mainnet.
 
 ---
 
-## Diğer açık sorular (bu turda çözülmedi, gelecekte netleşmeli)
+## Phase 3.2 — Batch settlement (`executeIntentBatch`)
 
-1. **ClawScore hesaplama yeri:** on-chain mi (gas maliyeti), imzalı
-   off-chain oracle mı (güven varsayımı)? `ajan6-ClawScoreV1.md`'de
-   ilk açık soru olarak işaretlenmişti, hâlâ açık.
-2. **WillTokenV5 ↔ WillDividendTracker kullanıcı kimlik varsayımı:**
-   İki kontrat aynı cüzdan adresini "aynı kullanıcı" olarak paylaştığı
-   varsayılıyor — bu hiç doğrulanmadı. H bileşeni artık sadece
-   WillTokenV5'ten geliyor olsa da, WillDividendTracker projenin
-   başka yerlerinde (dividend/faction UI) hâlâ aktif kullanılıyor.
+**Problem:** the "off-chain negotiation, periodic batched on-chain
+settlement" flow Manifesto v3 envisions is gas-inefficient with the
+current single-intent `executeIntent` (N intents = N separate txs).
+
+**Options (to be decided in Phase 3):**
+- (a) The same agent calls `executeIntent` multiple times within one
+  transaction — simple, requires no contract change, but still N
+  separate calls.
+- (b) A new `executeIntentBatch(AgentIntent[] calldata intents, bytes[] calldata signatures)`
+  function — real gas savings, but a new attack surface: partial-failure
+  behavior (if one intent reverts, is everything rolled back or
+  skipped?), reentrancy/ordering risks within a single expensive tx need
+  to be re-evaluated.
+
+**Prerequisites:** the (a) vs (b) decision, and if (b) is chosen, a
+full CTO security review (partial-failure semantics in particular).
+
+---
+
+## Other open questions (not resolved this round, need future clarification)
+
+1. **Where ClawScore is computed:** on-chain (gas cost) or a signed
+   off-chain oracle (trust assumption)? Flagged as an open question
+   from the start in `ajan6-ClawScoreV1.md`, still open.
+2. **WillTokenV5 ↔ WillDividendTracker user identity assumption:** it is
+   assumed both contracts share the same wallet address as "the same
+   user" — this has never been verified. Even though the H component
+   now comes solely from WillTokenV5, WillDividendTracker is still
+   actively used elsewhere in the project (dividend/faction UI).
 3. **imsg/acpx/wacli/gogcli/clawsweeper/mcporter/openclaw-windows-node:**
-   Manifesto v3 "yedi repo analiz edildi" diyor ama bu ortamda hiçbiri
-   gerçek kod olarak bulunamadı (aranıp doğrulandı). Faz 3 planlaması
-   öncesi netleşmesi gereken temel soru: bunlar var olan, erişilebilir
-   repolar mı, yoksa sıfırdan mı inşa edilecek? Bu, openclaw-architecture.md'nin
-   tüm varsayımsal temelini etkiliyor.
-4. **Faction Score (F) veri kaynağı:** MVP'de veri yok/0. Faz 3'te
-   çözülecekse iki yol var: (i) WillDividendTracker'dan salt-okunur
-   entegrasyon (kontrat değişikliği yok, ama 0xe117 bağımlılığı
-   kısmen geri döner), (ii) V6-tarzı native tracking (AgentScope ile
-   aynı ön koşullar — tam güvenlik incelemesi gerektirir).
+   Manifesto v3 says "seven repos analyzed," but none were found as real
+   code in this environment (searched and confirmed). The core question
+   to resolve before Phase 3 planning: are these existing, accessible
+   repos, or will they be built from scratch? This affects the entire
+   speculative foundation of openclaw-architecture.md.
+4. **Faction Score (F) data source:** no data/0 in MVP. If resolved in
+   Phase 3, there are two paths: (i) read-only integration with
+   WillDividendTracker (no contract change, but partially reintroduces
+   the 0xe117 dependency), (ii) V6-style native tracking (same
+   prerequisites as AgentScope — requires a full security review).
 
 ---
 
-## İlkeler (Faz 3 çalışmasına başlarken hatırlanacak)
+## Principles (to remember when starting Phase 3 work)
 
-- V5, Mainnet'te aktif kontrat. Hiçbir Faz 3 maddesi, tam bir CTO
-  güvenlik incelemesi ve CEO onayı olmadan mainnet'e dokunmaz.
-- `cast send --create` zorunlu (forge script chain 4663'te çalışmıyor).
-- Private key hiçbir zaman dosyaya yazılmaz.
-- Yeni bir kontrat versiyonu her zaman: (1) yerelde derlenip test
-  edilir, (2) Red Team incelemesinden geçer, (3) CEO onayı alır,
-  (4) ancak o zaman testnet'e, sonra mainnet'e taşınır — bu sıra hiç
-  atlanmaz.
+- V5 is the active contract on Mainnet. No Phase 3 item touches mainnet
+  without a full CTO security review and CEO approval.
+- `cast send --create` is mandatory (forge script doesn't work on chain
+  4663).
+- Private keys are never written to a file.
+- A new contract version always follows this order, without exception:
+  (1) compiled and tested locally, (2) goes through a Red Team review,
+  (3) gets CEO approval, (4) only then moves to testnet, then mainnet.

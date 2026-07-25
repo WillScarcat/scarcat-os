@@ -1,25 +1,25 @@
-// social-fi-webhook.ts — Faz 4, Ajan-8: crawler-bridge.ts'in mock veri
-// kaynağının yerini alacak GERÇEK bir CrawlerDataSource — X (Twitter) ve
-// Telegram webhook trafiğini karşılayan bir HTTP sunucusu.
+// social-fi-webhook.ts — Phase 4, Agent-8: a REAL CrawlerDataSource to
+// replace crawler-bridge.ts's mock data source — an HTTP server that
+// handles X (Twitter) and Telegram webhook traffic.
 //
-// DÜRÜSTLÜK NOTU: bu ortamda gerçek bir X Developer hesabı / Telegram
-// Bot token / genel erişilebilir bir webhook URL'i yok — bu yüzden
-// GERÇEK canlı X/Telegram trafiğine karşı test edilmedi. Bunun yerine
-// her iki platformun RESMİ, belgelenmiş payload şekillerine (Telegram
-// Bot API `Update` nesnesi, X API v2 tweet nesnesi + X Account Activity
-// API CRC handshake) karşı, sentetik payload'larla uçtan uca doğrulandı.
-// Gerçek entegrasyon için gereken: (1) Telegram tarafında
-// `setWebhook(url, secret_token)`, (2) X tarafında Account Activity API
-// abonelik kaydı + CRC doğrulaması (bu dosya CRC handshake'i doğru
-// implemente ediyor). node:http kullanır — yeni bir bağımlılık
-// eklemeden tek dosya.
+// HONESTY NOTE: this environment has no real X Developer account /
+// Telegram Bot token / publicly reachable webhook URL — so this was NOT
+// tested against real live X/Telegram traffic. Instead, it was verified
+// end-to-end with synthetic payloads against both platforms' OFFICIAL,
+// documented payload shapes (the Telegram Bot API `Update` object, the
+// X API v2 tweet object + the X Account Activity API CRC handshake).
+// What real integration would additionally require: (1) on the Telegram
+// side, `setWebhook(url, secret_token)`, (2) on the X side, an Account
+// Activity API subscription + CRC verification (this file correctly
+// implements the CRC handshake). Uses node:http — a single file, no new
+// dependency added.
 
 import { createServer, type IncomingMessage, type ServerResponse, type Server } from 'node:http'
 import { EventEmitter } from 'node:events'
 import { createHmac, timingSafeEqual } from 'node:crypto'
 import type { CrawlerDataSource, CrawlerEvent } from './crawler-bridge'
 
-// ============ Telegram Bot API — resmi Update şekli ============
+// ============ Telegram Bot API — official Update shape ============
 // https://core.telegram.org/bots/api#update
 
 interface TelegramUpdate {
@@ -45,7 +45,7 @@ function telegramUpdateToCrawlerEvent(update: TelegramUpdate): CrawlerEvent | nu
   }
 }
 
-// ============ X (Twitter) — API v2 tweet nesnesi ============
+// ============ X (Twitter) — API v2 tweet object ============
 // https://developer.x.com/en/docs/x-api/data-dictionary/object-model/tweet
 
 interface XWebhookPayload {

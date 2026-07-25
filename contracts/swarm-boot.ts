@@ -1,4 +1,4 @@
-// swarm-boot.ts — Faz 3 Aşama 2: Swarm Boot Sequence.
+// swarm-boot.ts — Phase 3 Stage 2: Swarm Boot Sequence.
 // Assigns each of the 9 SCARCAT swarm agents (Ajan-1..Ajan-9, per
 // status/SWARM_STATUS.md) a unique TEST wallet, connects them to a
 // shared OpenClawBridge for A2A negotiation, and watches the real
@@ -70,7 +70,7 @@ export function bootSwarm(options: BootSwarmOptions = {}): SwarmBoot {
   const bridge = new OpenClawBridge()
   const node = createOpenClawNode(options.contractAddress)
 
-  log(`[swarm-boot] ${agents.length} ajan test cüzdanıyla başlatıldı:`)
+  log(`[swarm-boot] ${agents.length} agents booted with test wallets:`)
   for (const agent of agents) {
     log(`  ${agent.id} (${agent.title}) -> ${agent.address}`)
   }

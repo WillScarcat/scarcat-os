@@ -1,23 +1,22 @@
 'use client'
 
-// Scarcat OS Komuta Merkezi — 3 panel: A2A Intent Mempool, ClawScore
-// canlı, sistem logları. swarm-boot.ts + openclaw-node.ts'ten bir
-// WebSocket sunucusu (bkz. swarm-boot.ts#startMonitorServer) üzerinden
-// beslenir.
+// Scarcat OS Command Center — 3 panels: A2A Intent Mempool, live
+// ClawScore, system logs. Fed by a WebSocket server from swarm-boot.ts
+// + openclaw-node.ts (see swarm-boot.ts#startMonitorServer).
 //
-// Bu dosya sadece CLIENT — WS sunucusu ayrı bir process
-// (swarm-boot.ts#startMonitorServer) olarak çalışır ve MonitorMessage
-// tipini (bkz. swarm-boot.ts) JSON olarak yayınlar. Görsel stil
-// will-dapp'in mevcut konvansiyonlarını (glass-card, wc-mono, dark
-// tema) izliyor — sıfırdan bir tasarım dili icat edilmedi.
-//
-// Bu ortamda çalışan bir dev server olmadığı için görsel olarak
-// render edilip test edilmedi — sadece gerçek React/viem tiplerine
-// karşı tsc --strict ile doğrulandı.
+// This file is CLIENT ONLY — the WS server runs as a separate process
+// (swarm-boot.ts#startMonitorServer) and publishes the MonitorMessage
+// type (see swarm-boot.ts) as JSON. The visual style follows will-dapp's
+// existing conventions (glass-card, wc-mono, dark theme) — no design
+// language was invented from scratch.
+
+// Not visually rendered/tested since there is no running dev server in
+// this environment — only verified against real React/viem types with
+// tsc --strict.
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-// ---- Ortak protokol tipi — swarm-boot.ts#startMonitorServer ile aynı ----
+// ---- Shared protocol type — matches swarm-boot.ts#startMonitorServer ----
 
 export type MonitorMessage =
   | { type: 'intent'; from: string; to: string; amount: string; taskId: string; timestamp: number }
@@ -131,7 +130,7 @@ function MempoolPanel({ intents }: { intents: Extract<MonitorMessage, { type: 'i
         A2A Intent Mempool
       </h2>
       {intents.length === 0 ? (
-        <p className="text-xs text-gray-500">Henüz intent yok.</p>
+        <p className="text-xs text-gray-500">No intents yet.</p>
       ) : (
         <ul className="flex flex-col gap-1.5 max-h-80 overflow-y-auto">
           {intents.map((intent, i) => (
@@ -170,10 +169,10 @@ function ClawScorePanel({ scores }: { scores: Map<string, Extract<MonitorMessage
   return (
     <div className="glass-card p-4">
       <h2 className="wc-mono text-xs font-bold uppercase tracking-wider text-white mb-3">
-        Claw Score — Canlı
+        Claw Score — Live
       </h2>
       {sorted.length === 0 ? (
-        <p className="text-xs text-gray-500">Henüz skor yok.</p>
+        <p className="text-xs text-gray-500">No scores yet.</p>
       ) : (
         <ul className="flex flex-col gap-1.5 max-h-80 overflow-y-auto">
           {sorted.map((s) => (
@@ -207,10 +206,10 @@ function LogPanel({ logs }: { logs: Extract<MonitorMessage, { type: 'log' }>[] }
   return (
     <div className="glass-card p-4">
       <h2 className="wc-mono text-xs font-bold uppercase tracking-wider text-white mb-3">
-        Sistem Logları
+        System Logs
       </h2>
       {logs.length === 0 ? (
-        <p className="text-xs text-gray-500">Henüz log yok.</p>
+        <p className="text-xs text-gray-500">No logs yet.</p>
       ) : (
         <ul className="flex flex-col gap-1 max-h-80 overflow-y-auto wc-mono text-[10px]">
           {logs.map((log, i) => (
@@ -239,7 +238,7 @@ export default function ScarcatMonitor({ wsUrl }: ScarcatMonitorProps) {
     <div className="px-4 py-6">
       <div className="mx-auto max-w-6xl">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-lg font-bold text-white">Scarcat OS — Komuta Merkezi</h1>
+          <h1 className="text-lg font-bold text-white">Scarcat OS — Command Center</h1>
           <ConnectionBadge connected={connected} />
         </div>
 
