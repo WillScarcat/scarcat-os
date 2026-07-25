@@ -18,7 +18,12 @@ import { OpenClawBridge, type A2ARequest } from './openclaw-node'
 
 // ============ Generic crawler event shape ============
 
-export type CrawlerSource = 'gitcrawl' | 'discrawl'
+// Faz 4: social-fi-webhook.ts 'x' ve 'telegram' ekledi — tek bir
+// CrawlerDataSource örneği artık BİRDEN FAZLA kaynaktan event
+// yayınlayabiliyor (X+Telegram tek webhook sunucusunda), bu yüzden
+// "source" artık DataSource seviyesinde değil sadece her CrawlerEvent'in
+// kendi alanı (aşağıda) — bkz. bu dosyanın altındaki not.
+export type CrawlerSource = 'gitcrawl' | 'discrawl' | 'x' | 'telegram'
 
 export interface CrawlerEvent {
   source: CrawlerSource
@@ -31,7 +36,6 @@ export interface CrawlerEvent {
 }
 
 export interface CrawlerDataSource {
-  source: CrawlerSource
   /** Starts listening; returns an unsubscribe function. */
   subscribe(onEvent: (event: CrawlerEvent) => void): () => void
 }
